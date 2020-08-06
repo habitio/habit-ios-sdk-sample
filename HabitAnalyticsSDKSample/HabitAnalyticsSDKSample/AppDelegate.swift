@@ -13,6 +13,10 @@ import HabitAnalytics
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    let supportedCapabilities = [HabitAnalyticsSupportedCapabilites.AnalyticsTracker,
+                                 HabitAnalyticsSupportedCapabilites.Bluetooth,
+                                 HabitAnalyticsSupportedCapabilites.Location,
+                                 HabitAnalyticsSupportedCapabilites.Motion]
 
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         HabitAnalytics.shared.handleBGFetch { (result) in
@@ -24,24 +28,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
+        
         UIApplication.shared.setMinimumBackgroundFetchInterval(TimeInterval(1800))
         
         guard let loadedUserAuth = Storage.loadAuthInfo() else
         {
-            HabitAnalytics.shared.initialize(namespace: Configurations.Namespace) { (statusCode) in
+            
+            HabitAnalytics.shared.initialize(namespace: Configurations.Namespace, enabledCapabilities: supportedCapabilities) { (statusCode) in
                 debugPrint("Habit Analytics initialization code: " + String(statusCode) + " : " + HabitStatusCodes.getDescription(code: statusCode))
             }
             return true
         }
         
         
-        HabitAnalytics.shared.initialize(namespace: Configurations.Namespace, authInfo: loadedUserAuth) { (statusCode) in
+        HabitAnalytics.shared.initialize(namespace: Configurations.Namespace, authInfo: loadedUserAuth, enabledCapabilities: supportedCapabilities) { (statusCode) in
             debugPrint("Habit Analytics initialization code: " + String(statusCode) + " : " + HabitStatusCodes.getDescription(code: statusCode))
         }
         
         return true
     }
-
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        
+        HabitAnalytics.shared.handlePushNotification(userInfo: userInfo) { (result) in
+            completionHandler(result)
+        }
+    }
+    
+    
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
