@@ -3,10 +3,6 @@
 
 This sample shows how the Habit Analytics SDK should be initialized and used. 
 
-It also shows how to register a new user account, login and refresh a token on our platform.
-
-For more information on how **Authorization** is done, go [here](https://github.com/habitio/habit-analytics-ios-sdk/blob/master/Authorization.md)!
-
 For detailed information about integrating and using the **HabitAnalytics SDK**, please check here:
 
 ###  [Habit Analytics SDK Documentation](https://github.com/habitio/habit-analytics-ios-sdk/blob/master/README.md) 
