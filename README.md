@@ -5,8 +5,8 @@ This sample shows how the Habit Analytics SDK should be initialized and used.
 
 For detailed information about integrating and using the **HabitAnalytics SDK**, please check here:
 
-###  [Habit Analytics SDK Documentation](https://github.com/habitio/habit-analytics-ios-sdk/blob/master/README.md) 
-
+### **[iOS Quick Start Guide](https://docs.habit.io/sdk/getting-started)**.
+ 
 ## Getting started with this sample
 
 ### **[Cocoapods](https://cocoapods.org)**
@@ -30,17 +30,17 @@ pod install
 
 ## Update Configuration file with your information
 
-There's a Swift file called Configurations in which you need to replace some "--replace-me--" placeholders. 
+There's a Swift file called Configurations in which you need to replace some "<--replace-me-->" placeholders. 
 
  You can find these in our [Selfcare Back Office](https://selfcare.habit.io)
-* **ClientID**  
-* **Namespace** 
+* **Analytics ID**  
+* **Analytics API Key** 
 
 That's it! Now just build and enjoy!
 
 ## Built With
 
-Xcode 10.3 - IDE
+Xcode 11.7 - IDE
 
 ## Versioning
 
