@@ -10,13 +10,9 @@ import Foundation
 
 struct Configurations {
     
-    /// Host used to authenticate user / create account
-    static let AuthHost = "https://api.platform.muzzley.com"
-    
-    /// Client ID that uniquely identifies the application
-    static let ClientID = "--REPLACE-ME--"
-    
-    /// Application namespace
-    static let Namespace = "--REPLACE-ME--"
+    static let AnalyticsID = "<--REPLACE ME-->"
 
+    static let AnalyticsAPIToken = "<--REPLACE ME-->"
+    
+    static let UXEventsToken = "<--REPLACE ME-->"
 }

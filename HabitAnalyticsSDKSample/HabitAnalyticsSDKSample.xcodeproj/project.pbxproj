@@ -7,20 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A073F9B024FEF8F300353AD3 /* StorageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A073F9AF24FEF8F300353AD3 /* StorageHelper.swift */; };
 		A0D629F822F19D9400FFB90D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D629F722F19D9400FFB90D /* AppDelegate.swift */; };
 		A0D629FA22F19D9400FFB90D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D629F922F19D9400FFB90D /* ViewController.swift */; };
 		A0D629FD22F19D9400FFB90D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A0D629FB22F19D9400FFB90D /* Main.storyboard */; };
 		A0D629FF22F19D9500FFB90D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0D629FE22F19D9500FFB90D /* Assets.xcassets */; };
 		A0D62A0222F19D9500FFB90D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A0D62A0022F19D9500FFB90D /* LaunchScreen.storyboard */; };
-		A0DF6BA022F336C900ADD7C1 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DF6B9F22F336C900ADD7C1 /* Storage.swift */; };
-		A0DF6BA222F3448A00ADD7C1 /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DF6BA122F3448A00ADD7C1 /* Authentication.swift */; };
 		A0DF6BA422F34ED200ADD7C1 /* Configurations.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DF6BA322F34ED200ADD7C1 /* Configurations.swift */; };
-		A0E5790F22F42BB5007FC301 /* Endpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E5790E22F42BB5007FC301 /* Endpoints.swift */; };
 		E97A10495EB24E6A9054C114 /* Pods_HabitAnalyticsSDKSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2EFD236277B303EE38197F7 /* Pods_HabitAnalyticsSDKSample.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		4B7D4AEF8E17D959A6CBEEC5 /* Pods-HabitAnalyticsSDKSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HabitAnalyticsSDKSample.release.xcconfig"; path = "Target Support Files/Pods-HabitAnalyticsSDKSample/Pods-HabitAnalyticsSDKSample.release.xcconfig"; sourceTree = "<group>"; };
+		A06E97E22507DC1C002E5184 /* HabitAnalyticsSDKSample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HabitAnalyticsSDKSample.entitlements; sourceTree = "<group>"; };
+		A073F9AF24FEF8F300353AD3 /* StorageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageHelper.swift; sourceTree = "<group>"; };
 		A0D629F422F19D9400FFB90D /* HabitAnalyticsSDKSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HabitAnalyticsSDKSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0D629F722F19D9400FFB90D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A0D629F922F19D9400FFB90D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -28,10 +28,7 @@
 		A0D629FE22F19D9500FFB90D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A0D62A0122F19D9500FFB90D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A0D62A0322F19D9500FFB90D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A0DF6B9F22F336C900ADD7C1 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
-		A0DF6BA122F3448A00ADD7C1 /* Authentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Authentication.swift; sourceTree = "<group>"; };
 		A0DF6BA322F34ED200ADD7C1 /* Configurations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configurations.swift; sourceTree = "<group>"; };
-		A0E5790E22F42BB5007FC301 /* Endpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoints.swift; sourceTree = "<group>"; };
 		C2EFD236277B303EE38197F7 /* Pods_HabitAnalyticsSDKSample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HabitAnalyticsSDKSample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FBBF03977EE37B5ADCD00101 /* Pods-HabitAnalyticsSDKSample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HabitAnalyticsSDKSample.debug.xcconfig"; path = "Target Support Files/Pods-HabitAnalyticsSDKSample/Pods-HabitAnalyticsSDKSample.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -78,16 +75,15 @@
 		A0D629F622F19D9400FFB90D /* HabitAnalyticsSDKSample */ = {
 			isa = PBXGroup;
 			children = (
+				A06E97E22507DC1C002E5184 /* HabitAnalyticsSDKSample.entitlements */,
 				A0D629F722F19D9400FFB90D /* AppDelegate.swift */,
 				A0D629F922F19D9400FFB90D /* ViewController.swift */,
 				A0D629FB22F19D9400FFB90D /* Main.storyboard */,
 				A0D629FE22F19D9500FFB90D /* Assets.xcassets */,
 				A0D62A0022F19D9500FFB90D /* LaunchScreen.storyboard */,
 				A0D62A0322F19D9500FFB90D /* Info.plist */,
-				A0DF6B9F22F336C900ADD7C1 /* Storage.swift */,
-				A0DF6BA122F3448A00ADD7C1 /* Authentication.swift */,
 				A0DF6BA322F34ED200ADD7C1 /* Configurations.swift */,
-				A0E5790E22F42BB5007FC301 /* Endpoints.swift */,
+				A073F9AF24FEF8F300353AD3 /* StorageHelper.swift */,
 			);
 			path = HabitAnalyticsSDKSample;
 			sourceTree = "<group>";
@@ -222,10 +218,8 @@
 			files = (
 				A0DF6BA422F34ED200ADD7C1 /* Configurations.swift in Sources */,
 				A0D629FA22F19D9400FFB90D /* ViewController.swift in Sources */,
+				A073F9B024FEF8F300353AD3 /* StorageHelper.swift in Sources */,
 				A0D629F822F19D9400FFB90D /* AppDelegate.swift in Sources */,
-				A0DF6BA022F336C900ADD7C1 /* Storage.swift in Sources */,
-				A0E5790F22F42BB5007FC301 /* Endpoints.swift in Sources */,
-				A0DF6BA222F3448A00ADD7C1 /* Authentication.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -372,7 +366,9 @@
 			baseConfigurationReference = FBBF03977EE37B5ADCD00101 /* Pods-HabitAnalyticsSDKSample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HabitAnalyticsSDKSample/HabitAnalyticsSDKSample.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7449HV5K3Y;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = HabitAnalyticsSDKSample/Info.plist;
@@ -380,7 +376,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = io.habit.ios.sdklogin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -393,7 +389,9 @@
 			baseConfigurationReference = 4B7D4AEF8E17D959A6CBEEC5 /* Pods-HabitAnalyticsSDKSample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HabitAnalyticsSDKSample/HabitAnalyticsSDKSample.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7449HV5K3Y;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = HabitAnalyticsSDKSample/Info.plist;
@@ -401,7 +399,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = io.habit.ios.sdklogin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

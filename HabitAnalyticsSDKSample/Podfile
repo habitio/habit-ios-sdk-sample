@@ -7,5 +7,5 @@ target 'HabitAnalyticsSDKSample' do
   use_frameworks!
 
   # Pods for HabitAnalyticsSDKSample
-  pod 'HabitAnalytics', '1.12'
+  pod 'HabitAnalytics', '2.1'
 end

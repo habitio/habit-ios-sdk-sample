@@ -8,113 +8,177 @@
 
 import UIKit
 import HabitAnalytics
+import CoreLocation
+import CoreBluetooth
+import CoreMotion
 
-class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDelegate {
+class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDelegate, CLLocationManagerDelegate, CBCentralManagerDelegate
+{
 
+    private var centralManager : CBCentralManager?
+    
     @IBOutlet weak var uiLbLoggedInStatus: UILabel!
     @IBOutlet weak var uiLoadingView: UIView!
+   
+
+    @IBOutlet var uiBtTrack: UIButton!
     
-    @IBOutlet weak var uiTfName: UITextField!
-    @IBOutlet weak var uiTfEmail: UITextField!
-    @IBOutlet weak var uiTfPassword: UITextField!
+
+    @IBOutlet var uiTfExternalID: UITextField!
     
-    @IBOutlet weak var uiBtCreateAccount: UIButton!
-    @IBOutlet weak var uiBtLogin: UIButton!
-    @IBOutlet weak var uiBtLogout: UIButton!
-    @IBOutlet weak var uiBtTrack: UIButton!
+    @IBOutlet var uiBtInitialize: UIButton!
     
-    private var userAuthInfo : NSDictionary?
+    @IBOutlet var uiBtSetExternalID: UIButton!
     
-    private var isUserLoggedIn : Bool = false {
-        didSet
+
+    
+    @IBOutlet var uiSwitchLocation: UISwitch!
+    @IBOutlet var uiBtRequestLocation: UIButton!
+    
+    @IBOutlet var uiSwitchBluetooth: UISwitch!
+    @IBOutlet var uiBtRequestBluetooth: UIButton!
+    
+    @IBAction func uiBtSetExternalID_TouchUpInside(_ sender: UIButton) {
+        
+        if !uiTfExternalID.text!.trimmingCharacters(in: CharacterSet.whitespaces).isEmpty
         {
-            DispatchQueue.main.async {
-                
-                if self.isUserLoggedIn
-                {
-                    self.uiLbLoggedInStatus.text = "Yes"
-                    self.uiLbLoggedInStatus.textColor = UIColor.green
-                    self.uiBtCreateAccount.isEnabled = false
-                    self.uiBtLogin.isEnabled = false
-                    self.uiBtLogout.isEnabled = true
-                    self.uiBtTrack.isEnabled = true
-                }
-                else
-                {
-                    self.uiLbLoggedInStatus.text = "No"
-                    self.uiLbLoggedInStatus.textColor = UIColor.red
-                    self.uiBtCreateAccount.isEnabled = true
-                    self.uiBtLogin.isEnabled = true
-                    self.uiBtLogout.isEnabled = false
-                    self.uiBtTrack.isEnabled = false
-                }
+            StorageHelper.save(key: StorageHelper.key_externalID, value: uiTfExternalID.text!.trimmingCharacters(in: .whitespacesAndNewlines))
+            HabitAnalytics.shared.setExternalID(identifier: uiTfExternalID.text!.trimmingCharacters(in: CharacterSet.whitespaces)) { (code) in
+                self.showAlert(title: String(code), message: HabitStatusCodes.getDescription(code: code))
             }
         }
     }
     
+  
+    
+    @IBAction func uiSwitchLocation_ValueChanged(_ sender: UISwitch) {
+        StorageHelper.save(key: StorageHelper.key_CapabilityLocation, value: sender.isOn)
+        HabitAnalytics.shared.updatePermissions(permissionType: .location, permissionStatus: sender.isOn) { (code) in
+            self.showAlert(title: String(code), message: HabitStatusCodes.getDescription(code: code))
+        }
+    }
+    
+    @IBAction func uiSwitchBluetooth_ValueChanged(_ sender: UISwitch) {
+        StorageHelper.save(key: StorageHelper.key_CapabilityBluetooth, value: sender.isOn)
+        HabitAnalytics.shared.updatePermissions(permissionType: .bluetooth, permissionStatus: sender.isOn) { (code) in
+            self.showAlert(title: String(code), message: HabitStatusCodes.getDescription(code: code))
+        }
+    }
+    
+
+    
+    var locationManager : CLLocationManager?
+    
+    @IBOutlet var uiBtSignOut: UIButton!
+    
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
         
         setup()
-       
     }
     
-    @IBAction func uiBtCreateAccount_TouchUpInside(_ sender: Any) {
-        self.uiLoadingView.isHidden = false
-        if !uiTfName.text!.isEmpty && !uiTfEmail.text!.isEmpty && !uiTfPassword.text!.isEmpty
-        {
-            createAccount(name: uiTfName.text!, email: uiTfEmail.text!, password: uiTfPassword.text!)
-            
-        }
-        else
-        {
-            showAlert(title: "", message: "Please make sure all the required fields are properly filled")
-              self.uiLoadingView.isHidden = true
-        }
-    }
-    
-    @IBAction func uiBtLogin_TouchUpInside(_ sender: Any) {
-        
-        self.uiLoadingView.isHidden = false
-        if !uiTfEmail.text!.isEmpty && !uiTfPassword.text!.isEmpty
-        {
-            login(email: uiTfEmail.text!, password: uiTfPassword.text!)
-            
-        }
-        else
-        {
-            showAlert(title: "", message: "Please make sure all the required fields are properly filled")
-            self.uiLoadingView.isHidden = true
-        }
-    }
+
     
     @IBAction func uiBtLogout_TouchUpInside(_ sender: Any) {
         logout()
     }
     
     @IBAction func uiBtTrack_TouchUpInside(_ sender: Any) {
-        track()
+        updateEvents() 
     }
     
     func setup()
     {
-        uiTfName.delegate = self
-        uiTfEmail.delegate = self
-        uiTfPassword.delegate = self
-        uiTfPassword.passwordRules = nil
-      
+        
+        self.uiTfExternalID.delegate = self
         self.uiLoadingView.isHidden = true
         
-        guard let loadedAuthInfo = Storage.loadAuthInfo() else
+        //        changeButtonsState(isEnabled: false)
+        
+        DispatchQueue.main.async {
+            
+            self.uiLbLoggedInStatus.text = "Disabled"
+            self.uiLbLoggedInStatus.textColor = UIColor.red
+        }
+
+        guard let loadedCapabilityBluetooth = StorageHelper.load(key: StorageHelper.key_CapabilityBluetooth) as! Bool? else { return }
+        
+        guard let loadedCapabilityLocation = StorageHelper.load(key: StorageHelper.key_CapabilityLocation) as! Bool? else { return }
+        
+        guard let loadedCapabilityMotion = StorageHelper.load(key: StorageHelper.key_CapabilityMotion) as! Bool? else { return }
+        
+        let loadedExternalID = StorageHelper.load(key: StorageHelper.key_externalID) as! String?
+        if loadedExternalID != nil
         {
-            self.isUserLoggedIn = false
-            return
+            self.uiTfExternalID.text = loadedExternalID!
+            self.uiBtSetExternalID.isEnabled = false
+        }
+        else
+        {
+            self.uiBtSetExternalID.isEnabled = true
         }
         
-        self.userAuthInfo = loadedAuthInfo
-        self.isUserLoggedIn = true
+        let config = Configuration()
         
+        config.uxEventsConfig.token = Configurations.UXEventsToken
+        
+        config.capabilities.ux_events = true
+        config.capabilities.bluetooth = loadedCapabilityBluetooth
+        config.capabilities.location = loadedCapabilityLocation
+        config.capabilities.motion = loadedCapabilityLocation
+        config.permissions.location =  loadedCapabilityLocation
+        config.permissions.bluetooth =  loadedCapabilityBluetooth
+        config.permissions.motion = loadedCapabilityMotion
+        
+        
+        uiSwitchLocation.isOn = config.capabilities.location
+        uiSwitchBluetooth.isOn = config.capabilities.bluetooth
+        
+        
+        self.uiLbNumberStoredEvents.text = "Stored Events: \(HabitAnalytics.shared.getNumberOfStoredEvents())"
+        
+        
+        DispatchQueue.main.async {
+            self.uiLbLoggedInStatus.text = "Enabled"
+            self.uiLbLoggedInStatus.textColor = UIColor.green
+            self.uiBtInitialize.isEnabled = false
+            self.uiBtSignOut.isEnabled = true
+            
+        }
+        
+        HabitAnalytics.shared.initialize(analyticsID: Configurations.AnalyticsID, analyticsAPIKey: Configurations.AnalyticsAPIToken, configuration: config) { (code) in
+            
+            switch code
+            {
+                case HabitStatusCodes.HABIT_SDK_INITIALIZATION_SUCCESS,
+                     HabitStatusCodes.HABIT_SDK_INITIALIZED_LOCATION_PERMISSIONS_REQUIRED:
+                    
+                    DispatchQueue.main.async {
+                        
+                        self.uiLbNumberStoredEvents.text = "Stored Events: \(HabitAnalytics.shared.getNumberOfStoredEvents())"
+                        self.uiBtSignOut.isEnabled = true
+                        self.uiLbLoggedInStatus.text = "Enabled"
+                        self.uiLbLoggedInStatus.textColor = UIColor.green
+                    }
+                    break
+                    
+                case HabitStatusCodes.HABIT_SDK_NOT_INITIALIZED,
+                     HabitStatusCodes.HABIT_SDK_INITIALIZATION_ERROR:
+                    DispatchQueue.main.async {
+                        
+                        self.uiBtSignOut.isEnabled = false
+                        self.uiLbLoggedInStatus.text = "Disabled"
+                        self.uiLbLoggedInStatus.textColor = UIColor.red
+                    }
+                    
+                default :
+                    
+                    break
+            }
+            self.showAlert(title: String(code), message: HabitStatusCodes.getDescription(code: code))
+        }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -122,109 +186,101 @@ class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDeleg
         return true
     }
     
-
-    func login(email: String, password: String)
-    {
-        Authentication.signIn(email: email, password: password) { (jsonResponse, error) in
-            if error != nil
-            {
-                self.showAlert(title: "Error logging in", message: String(error!.code))
-                self.isUserLoggedIn = false
-                DispatchQueue.main.async {
-                    self.uiLoadingView.isHidden = true
-                }
-                return
-            }
-            
-            if jsonResponse != nil
-            {
-                Storage.storeAuthInfo(jsonResponse!)
-                self.userAuthInfo = jsonResponse
-                
-                HabitAnalytics.shared.setAuthorization(authInfo:self.userAuthInfo!, completion: { (statusCode) in
-                    switch statusCode
-                    {
-                    case HabitStatusCodes.HABIT_SDK_NOT_INITIALIZED:
-                        HabitAnalytics.shared.initialize(namespace: Configurations.Namespace, analyticsInfo: nil, authInfo: self.userAuthInfo, completion: { (statusCode) in
-                            if statusCode != HabitStatusCodes.HABIT_SDK_INITIALIZATION_SUCCESS
-                            {
-                                self.showAlert(title: "Login", message: "Error setting user!")
-                                self.isUserLoggedIn = false
-                            }
-                            else
-                            {
-                                self.showAlert(title: "Login", message: "User logged in with success!")
-                                self.isUserLoggedIn = true
-                            }
-                        })
-                        break
-                    
-                    case HabitStatusCodes.USER_INITIALIZATION_SUCCESS:
-                        self.showAlert(title: "Login", message: "User logged in with success!")
-                        self.isUserLoggedIn = true
-                        break
-                    
-                    case HabitStatusCodes.USER_INITIALIZATION_ERROR:
-                        self.showAlert(title: "Login", message: "Error setting user!")
-                        self.isUserLoggedIn = false
-                        break
-                    default:
-                        
-                        break
-                    }
-                    DispatchQueue.main.async {
-                        self.uiLoadingView.isHidden = true
-                    }
-                })
-            }
-        }
-        
+    @IBAction func uiBtRequestLocation_TouchUpInside(_ sender: Any) {
+        locationManager = CLLocationManager()
+        locationManager?.delegate = self
+        locationManager?.requestAlwaysAuthorization()
     }
     
-    func createAccount(name: String, email: String, password: String)
-    {
-        Authentication.createAccount(name: name, email: email, password: password) { (jsonResponse, error) in
-            if error != nil
+    @IBAction func uiBtRequestBluetooth_TouchUpInside(_ sender: Any) {
+        centralManager = CBCentralManager(delegate: self, queue: .main)
+        centralManager!.delegate = self
+    }
+    
+        
+    @IBAction func uiBtInitialize_TouchUpInside(_ sender: UIButton) {
+        
+        let config = Configuration()
+                
+   
+        config.uxEventsConfig.token = Configurations.UXEventsToken
+        config.capabilities.bluetooth = self.uiSwitchBluetooth.isOn
+        config.capabilities.location = self.uiSwitchLocation.isOn
+        config.capabilities.motion = self.uiSwitchLocation.isOn
+        config.permissions.location =  self.uiSwitchLocation.isOn
+        config.permissions.bluetooth =  self.uiSwitchBluetooth.isOn
+        config.permissions.motion =  self.uiSwitchLocation.isOn
+        
+        StorageHelper.save(key: StorageHelper.key_CapabilityBluetooth, value: config.capabilities.bluetooth)
+        StorageHelper.save(key: StorageHelper.key_CapabilityLocation, value: config.capabilities.location)
+        StorageHelper.save(key: StorageHelper.key_CapabilityMotion, value: config.capabilities.motion)
+
+        HabitAnalytics.shared.initialize(analyticsID: Configurations.AnalyticsID, analyticsAPIKey: Configurations.AnalyticsAPIToken, configuration: config) { (code) in
+            switch code
             {
-                self.showAlert(title: "Error creating account", message: String(error!.code))
+                case HabitStatusCodes.HABIT_SDK_INITIALIZATION_SUCCESS,
+                     HabitStatusCodes.HABIT_SDK_INITIALIZED_LOCATION_PERMISSIONS_REQUIRED:
+                    
+                    self.uiLbNumberStoredEvents.text = "Stored Events: \(HabitAnalytics.shared.getNumberOfStoredEvents())"
+                    self.uiBtSignOut.isEnabled = true
+                    self.uiLbLoggedInStatus.text = "Enabled"
+                    self.uiLbLoggedInStatus.textColor = UIColor.green
+                    self.uiBtInitialize.isEnabled = false
+                    break
+                    
+                case HabitStatusCodes.HABIT_SDK_NOT_INITIALIZED,
+                     HabitStatusCodes.HABIT_SDK_INITIALIZATION_ERROR:
+                    
+                    self.uiBtSignOut.isEnabled = false
+                    self.uiLbLoggedInStatus.text = "Disabled"
+                    self.uiLbLoggedInStatus.textColor = UIColor.red
+                    
+                default :
+                    
+                    break
             }
             
-            if jsonResponse != nil
-            {
-                self.showAlert(title: "Create account", message: "Account created with success!")
-            }
             
-            DispatchQueue.main.async {
-                self.uiLoadingView.isHidden = true
-            }
+            self.showAlert(title: String(code), message: HabitStatusCodes.getDescription(code: code))
         }
+    }
+    @IBOutlet var uiLbNumberStoredEvents: UILabel!
+    
+    
+    func showAlert(title: String, message: String) {
+        
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    
+    @IBAction func uiBtSignOut_TouchUpInside(_ sender: UIButton) {
+        logout()
     }
     
     
     func logout()
     {
-        Storage.deleteStoredInfo()
-        HabitAnalytics.shared.logout { (statusCode) in
-            self.isUserLoggedIn = false
+        HabitAnalytics.shared.logout { (code) in
+            self.showAlert(title: String(code), message: HabitStatusCodes.getDescription(code: code))
         }
         
-    }
-    
-    func track()
-    {
-        let resultString = HabitStatusCodes.getDescription(code: HabitAnalytics.shared.track(eventName: "HabitAnalyticsSDKSampleEvent", properties: nil))
-        self.showAlert(title: "Track", message: resultString)
-    }
-
-    func showAlert(title: String, message: String)
-    {
+        StorageHelper.clearStorage()
         DispatchQueue.main.async {
-            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+            self.uiBtInitialize.isEnabled = true
+            self.uiBtSignOut.isEnabled = false
+            self.uiLbLoggedInStatus.text = "Disabled"
+            self.uiLbLoggedInStatus.textColor = UIColor.red
         }
     }
     
+    func updateEvents()
+    {
+         self.uiLbNumberStoredEvents.text = "Stored Events: \(HabitAnalytics.shared.getNumberOfStoredEvents())"
+    }
+
     
     /// Delegate function that handles status changes in the SDK.
     /// This delegate is called when the user token has expired and a new valid authorization info must be set.
@@ -233,34 +289,15 @@ class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDeleg
     func HabitAnalyticsStatusChange(statusCode: HabitStatusCode) {
         switch statusCode {
             
-        case HabitStatusCodes.SET_VALID_AUTHENTICATION_INFO:
-            guard let refreshToken = Storage.loadAuthInfo()?["refresh_token"] as? String else
-            {
-                debugPrint("No refresh token available to obtain new token")
-                self.logout()
-                showAlert(title: "Error refreshing token", message: "User is now logged out")
-                return
+        case HabitStatusCodes.SDK_DISABLED_CONTACT_SUPPORT:
+            DispatchQueue.main.async {
+                self.uiBtInitialize.isEnabled = true
+                self.uiBtSignOut.isEnabled = false
+                self.uiLbLoggedInStatus.text = "Disabled"
+                self.uiLbLoggedInStatus.textColor = UIColor.red
             }
             
-            Authentication.refreshToken(refreshToken: refreshToken) { (result, error) in
-                if error != nil
-                {
-                    debugPrint(error!)
-                    HabitAnalytics.shared.logout(completion: { (code) in
-                        self.isUserLoggedIn = false
-                        Storage.deleteStoredInfo()
-                    })
-                }
-                
-                if result != nil
-                {
-                    Storage.storeAuthInfo(result!)
-                    HabitAnalytics.shared.setAuthorization(authInfo: result!, completion: { (statusCode) in
-                        debugPrint("HabitSDK: " + String(statusCode) + " : " + HabitStatusCodes.getDescription(code: statusCode))
-                    })
-                }
-            }
-            
+            break
         default:
              debugPrint("Habit status code: " + String(statusCode) + " : " + HabitStatusCodes.getDescription(code: statusCode))
         }

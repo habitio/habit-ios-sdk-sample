@@ -10,13 +10,10 @@ import UIKit
 import HabitAnalytics
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, HabitAnalyticsDelegate {
 
     var window: UIWindow?
-    let supportedCapabilities = [HabitAnalyticsSupportedCapabilites.AnalyticsTracker,
-                                 HabitAnalyticsSupportedCapabilites.Bluetooth,
-                                 HabitAnalyticsSupportedCapabilites.Location,
-                                 HabitAnalyticsSupportedCapabilites.Motion]
+
 
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         HabitAnalytics.shared.handleBGFetch { (result) in
@@ -25,36 +22,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
+    func HabitAnalyticsStatusChange(statusCode: HabitStatusCode)
+    {
+        print("\(statusCode) : \(HabitStatusCodes.getDescription(code: statusCode))")
+    }
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
-        
         
         UIApplication.shared.setMinimumBackgroundFetchInterval(TimeInterval(1800))
         
-        guard let loadedUserAuth = Storage.loadAuthInfo() else
-        {
-            
-            HabitAnalytics.shared.initialize(namespace: Configurations.Namespace, enabledCapabilities: supportedCapabilities) { (statusCode) in
-                debugPrint("Habit Analytics initialization code: " + String(statusCode) + " : " + HabitStatusCodes.getDescription(code: statusCode))
-            }
-            return true
-        }
+        guard let loadedCapabilityBluetooth = StorageHelper.load(key: StorageHelper.key_CapabilityBluetooth) as! Bool? else { return true }
         
+        guard let loadedCapabilityLocation = StorageHelper.load(key: StorageHelper.key_CapabilityLocation) as! Bool? else { return true }
         
-        HabitAnalytics.shared.initialize(namespace: Configurations.Namespace, authInfo: loadedUserAuth, enabledCapabilities: supportedCapabilities) { (statusCode) in
+        guard let loadedCapabilityMotion = StorageHelper.load(key: StorageHelper.key_CapabilityMotion) as! Bool? else { return true }
+        
+        guard let loadedUXCapability = StorageHelper.load(key: StorageHelper.key_CapabilityUXEvents) as! Bool? else { return true }
+        
+        let loadedExternalID = StorageHelper.load(key: StorageHelper.key_externalID) as? String?
+                
+        let config = Configuration()
+
+        config.capabilities.bluetooth = loadedCapabilityBluetooth
+        config.capabilities.location = loadedCapabilityLocation
+        config.capabilities.motion = loadedCapabilityMotion
+        config.capabilities.ux_events = loadedUXCapability
+        
+        config.uxEventsConfig.token = Configurations.UXEventsToken
+
+        config.permissions.location =  loadedCapabilityLocation
+        config.permissions.bluetooth =  loadedCapabilityBluetooth
+        config.permissions.motion = loadedCapabilityMotion
+        
+        HabitAnalytics.shared.initialize(analyticsID: Configurations.AnalyticsID, analyticsAPIKey: Configurations.AnalyticsAPIToken, configuration: config, externalID: loadedExternalID ?? nil) { (statusCode) in
             debugPrint("Habit Analytics initialization code: " + String(statusCode) + " : " + HabitStatusCodes.getDescription(code: statusCode))
         }
         
         return true
+
     }
-    
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        
-        HabitAnalytics.shared.handlePushNotification(userInfo: userInfo) { (result) in
-            completionHandler(result)
-        }
-    }
-    
     
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
