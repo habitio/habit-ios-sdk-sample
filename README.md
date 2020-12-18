@@ -40,7 +40,7 @@ That's it! Now just build and enjoy!
 
 ## Built With
 
-Xcode 11.7 - IDE
+Xcode 12 - IDE
 
 ## Versioning
 
