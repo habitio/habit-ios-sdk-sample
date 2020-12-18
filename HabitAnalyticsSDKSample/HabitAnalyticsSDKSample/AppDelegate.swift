@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, HabitAnalyticsDelegate {
 
 
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        HabitAnalytics.shared.handleBGFetch { (result) in
+        HabitAnalyticsSDK.shared.handleBGFetch { (result) in
             completionHandler(result)
             return
         }
@@ -54,7 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, HabitAnalyticsDelegate {
         config.permissions.bluetooth =  loadedCapabilityBluetooth
         config.permissions.motion = loadedCapabilityMotion
         
-        HabitAnalytics.shared.initialize(analyticsID: Configurations.AnalyticsID, analyticsAPIKey: Configurations.AnalyticsAPIToken, configuration: config, externalID: loadedExternalID ?? nil) { (statusCode) in
+        HabitAnalyticsSDK.shared.initialize(analyticsID: Configurations.AnalyticsID, analyticsAPIKey: Configurations.AnalyticsAPIToken, configuration: config, externalID: loadedExternalID ?? nil) { (statusCode) in
             debugPrint("Habit Analytics initialization code: " + String(statusCode) + " : " + HabitStatusCodes.getDescription(code: statusCode))
         }
         

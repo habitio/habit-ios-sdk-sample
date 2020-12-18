@@ -14,6 +14,10 @@ import CoreMotion
 
 class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDelegate, CLLocationManagerDelegate, CBCentralManagerDelegate
 {
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        
+    }
+    
 
     private var centralManager : CBCentralManager?
     
@@ -43,7 +47,7 @@ class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDeleg
         if !uiTfExternalID.text!.trimmingCharacters(in: CharacterSet.whitespaces).isEmpty
         {
             StorageHelper.save(key: StorageHelper.key_externalID, value: uiTfExternalID.text!.trimmingCharacters(in: .whitespacesAndNewlines))
-            HabitAnalytics.shared.setExternalID(identifier: uiTfExternalID.text!.trimmingCharacters(in: CharacterSet.whitespaces)) { (code) in
+            HabitAnalyticsSDK.shared.setExternalID(identifier: uiTfExternalID.text!.trimmingCharacters(in: CharacterSet.whitespaces)) { (code) in
                 self.showAlert(title: String(code), message: HabitStatusCodes.getDescription(code: code))
             }
         }
@@ -53,14 +57,14 @@ class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDeleg
     
     @IBAction func uiSwitchLocation_ValueChanged(_ sender: UISwitch) {
         StorageHelper.save(key: StorageHelper.key_CapabilityLocation, value: sender.isOn)
-        HabitAnalytics.shared.updatePermissions(permissionType: .location, permissionStatus: sender.isOn) { (code) in
+        HabitAnalyticsSDK.shared.updatePermissions(permissionType: .location, permissionStatus: sender.isOn) { (code) in
             self.showAlert(title: String(code), message: HabitStatusCodes.getDescription(code: code))
         }
     }
     
     @IBAction func uiSwitchBluetooth_ValueChanged(_ sender: UISwitch) {
         StorageHelper.save(key: StorageHelper.key_CapabilityBluetooth, value: sender.isOn)
-        HabitAnalytics.shared.updatePermissions(permissionType: .bluetooth, permissionStatus: sender.isOn) { (code) in
+        HabitAnalyticsSDK.shared.updatePermissions(permissionType: .bluetooth, permissionStatus: sender.isOn) { (code) in
             self.showAlert(title: String(code), message: HabitStatusCodes.getDescription(code: code))
         }
     }
@@ -137,7 +141,7 @@ class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDeleg
         uiSwitchBluetooth.isOn = config.capabilities.bluetooth
         
         
-        self.uiLbNumberStoredEvents.text = "Stored Events: \(HabitAnalytics.shared.getNumberOfStoredEvents())"
+        self.uiLbNumberStoredEvents.text = "Stored Events: \(HabitAnalyticsSDK.shared.getNumberOfStoredEvents())"
         
         
         DispatchQueue.main.async {
@@ -148,7 +152,7 @@ class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDeleg
             
         }
         
-        HabitAnalytics.shared.initialize(analyticsID: Configurations.AnalyticsID, analyticsAPIKey: Configurations.AnalyticsAPIToken, configuration: config) { (code) in
+        HabitAnalyticsSDK.shared.initialize(analyticsID: Configurations.AnalyticsID, analyticsAPIKey: Configurations.AnalyticsAPIToken, configuration: config) { (code) in
             
             switch code
             {
@@ -157,7 +161,7 @@ class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDeleg
                     
                     DispatchQueue.main.async {
                         
-                        self.uiLbNumberStoredEvents.text = "Stored Events: \(HabitAnalytics.shared.getNumberOfStoredEvents())"
+                        self.uiLbNumberStoredEvents.text = "Stored Events: \(HabitAnalyticsSDK.shared.getNumberOfStoredEvents())"
                         self.uiBtSignOut.isEnabled = true
                         self.uiLbLoggedInStatus.text = "Enabled"
                         self.uiLbLoggedInStatus.textColor = UIColor.green
@@ -215,13 +219,13 @@ class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDeleg
         StorageHelper.save(key: StorageHelper.key_CapabilityLocation, value: config.capabilities.location)
         StorageHelper.save(key: StorageHelper.key_CapabilityMotion, value: config.capabilities.motion)
 
-        HabitAnalytics.shared.initialize(analyticsID: Configurations.AnalyticsID, analyticsAPIKey: Configurations.AnalyticsAPIToken, configuration: config) { (code) in
+        HabitAnalyticsSDK.shared.initialize(analyticsID: Configurations.AnalyticsID, analyticsAPIKey: Configurations.AnalyticsAPIToken, configuration: config) { (code) in
             switch code
             {
                 case HabitStatusCodes.HABIT_SDK_INITIALIZATION_SUCCESS,
                      HabitStatusCodes.HABIT_SDK_INITIALIZED_LOCATION_PERMISSIONS_REQUIRED:
                     
-                    self.uiLbNumberStoredEvents.text = "Stored Events: \(HabitAnalytics.shared.getNumberOfStoredEvents())"
+                    self.uiLbNumberStoredEvents.text = "Stored Events: \(HabitAnalyticsSDK.shared.getNumberOfStoredEvents())"
                     self.uiBtSignOut.isEnabled = true
                     self.uiLbLoggedInStatus.text = "Enabled"
                     self.uiLbLoggedInStatus.textColor = UIColor.green
@@ -263,7 +267,7 @@ class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDeleg
     
     func logout()
     {
-        HabitAnalytics.shared.logout { (code) in
+        HabitAnalyticsSDK.shared.logout { (code) in
             self.showAlert(title: String(code), message: HabitStatusCodes.getDescription(code: code))
         }
         
@@ -278,7 +282,7 @@ class ViewController: UIViewController, UITextFieldDelegate, HabitAnalyticsDeleg
     
     func updateEvents()
     {
-         self.uiLbNumberStoredEvents.text = "Stored Events: \(HabitAnalytics.shared.getNumberOfStoredEvents())"
+         self.uiLbNumberStoredEvents.text = "Stored Events: \(HabitAnalyticsSDK.shared.getNumberOfStoredEvents())"
     }
 
     
